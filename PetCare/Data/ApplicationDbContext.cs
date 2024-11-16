@@ -24,12 +24,12 @@ namespace PetCare.Data
             //Worker and PetType Connections
             modelBuilder.Entity<Worker_PetType>()
                 .HasOne(w => w.Worker)
-                .WithMany(wd => wd.Worker_PetTypes)
+                .WithMany(wp => wp.Worker_PetTypes)
                 .HasForeignKey(wi => wi.WorkerId);
 
             modelBuilder.Entity<Worker_PetType>()
                 .HasOne(w => w.PetType)
-                .WithMany(wd => wd.Worker_PetTypes)
+                .WithMany(wp => wp.Worker_PetTypes)
                 .HasForeignKey(wi => wi.PetTypeId);
         }
         public DbSet<Pet> Pets { get; set; }

@@ -1,11 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace PetCare.Migrations
 {
     /// <inheritdoc />
-    public partial class cleanupmade4 : Migration
+    public partial class newmigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -63,6 +64,19 @@ namespace PetCare.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ScheduleTypes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ScheduleTypeName = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ScheduleTypes", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Workers",
                 columns: table => new
                 {
@@ -89,7 +103,6 @@ namespace PetCare.Migrations
                     Medication = table.Column<bool>(type: "bit", nullable: true),
                     Indoor = table.Column<bool>(type: "bit", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    WorkerId = table.Column<int>(type: "int", nullable: true),
                     Verified = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -141,6 +154,102 @@ namespace PetCare.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Worker_PetTypes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    WorkerId = table.Column<int>(type: "int", nullable: false),
+                    PetTypeId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Worker_PetTypes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Worker_PetTypes_PetTypes_PetTypeId",
+                        column: x => x.PetTypeId,
+                        principalTable: "PetTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Worker_PetTypes_Workers_WorkerId",
+                        column: x => x.WorkerId,
+                        principalTable: "Workers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Images",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Data = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    PetId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Images", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Images_Pets_PetId",
+                        column: x => x.PetId,
+                        principalTable: "Pets",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Schedules",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ScheduleTypeId = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Age = table.Column<int>(type: "int", nullable: true),
+                    Past = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Date = table.Column<DateOnly>(type: "date", nullable: false),
+                    WorkerId = table.Column<int>(type: "int", nullable: false),
+                    PetId = table.Column<int>(type: "int", nullable: false),
+                    Allergies = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ParentInfo = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    NumberOfWalker = table.Column<int>(type: "int", nullable: true),
+                    LengthOfWalk = table.Column<int>(type: "int", nullable: true),
+                    Verified = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Schedules", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Schedules_Pets_PetId",
+                        column: x => x.PetId,
+                        principalTable: "Pets",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Schedules_ScheduleTypes_ScheduleTypeId",
+                        column: x => x.ScheduleTypeId,
+                        principalTable: "ScheduleTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Schedules_Workers_WorkerId",
+                        column: x => x.WorkerId,
+                        principalTable: "Workers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Images_PetId",
+                table: "Images",
+                column: "PetId");
+
             migrationBuilder.CreateIndex(
                 name: "IX_Pets_PetBreedId",
                 table: "Pets",
@@ -157,6 +266,21 @@ namespace PetCare.Migrations
                 column: "PetTypeId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Schedules_PetId",
+                table: "Schedules",
+                column: "PetId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Schedules_ScheduleTypeId",
+                table: "Schedules",
+                column: "ScheduleTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Schedules_WorkerId",
+                table: "Schedules",
+                column: "WorkerId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Worker_DaysOfWeeks_DaysOfWeekId",
                 table: "Worker_DaysOfWeeks",
                 column: "DaysOfWeekId");
@@ -165,16 +289,44 @@ namespace PetCare.Migrations
                 name: "IX_Worker_DaysOfWeeks_WorkerId",
                 table: "Worker_DaysOfWeeks",
                 column: "WorkerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Worker_PetTypes_PetTypeId",
+                table: "Worker_PetTypes",
+                column: "PetTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Worker_PetTypes_WorkerId",
+                table: "Worker_PetTypes",
+                column: "WorkerId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Pets");
+                name: "Images");
+
+            migrationBuilder.DropTable(
+                name: "Schedules");
 
             migrationBuilder.DropTable(
                 name: "Worker_DaysOfWeeks");
+
+            migrationBuilder.DropTable(
+                name: "Worker_PetTypes");
+
+            migrationBuilder.DropTable(
+                name: "Pets");
+
+            migrationBuilder.DropTable(
+                name: "ScheduleTypes");
+
+            migrationBuilder.DropTable(
+                name: "DaysOfWeeks");
+
+            migrationBuilder.DropTable(
+                name: "Workers");
 
             migrationBuilder.DropTable(
                 name: "PetBreeds");
@@ -184,12 +336,6 @@ namespace PetCare.Migrations
 
             migrationBuilder.DropTable(
                 name: "PetTypes");
-
-            migrationBuilder.DropTable(
-                name: "DaysOfWeeks");
-
-            migrationBuilder.DropTable(
-                name: "Workers");
         }
     }
 }

@@ -54,7 +54,12 @@ namespace PetCare.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("PetId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("PetId");
 
                     b.ToTable("Images");
                 });
@@ -94,9 +99,6 @@ namespace PetCare.Migrations
 
                     b.Property<bool>("Verified")
                         .HasColumnType("bit");
-
-                    b.Property<int?>("WorkerId")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -174,9 +176,8 @@ namespace PetCare.Migrations
                     b.Property<string>("Allergies")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Date")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
 
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
@@ -303,6 +304,15 @@ namespace PetCare.Migrations
                     b.ToTable("Worker_PetTypes");
                 });
 
+            modelBuilder.Entity("PetCare.Models.Entities.Image", b =>
+                {
+                    b.HasOne("PetCare.Models.Entities.Pet", "Pet")
+                        .WithMany("Images")
+                        .HasForeignKey("PetId");
+
+                    b.Navigation("Pet");
+                });
+
             modelBuilder.Entity("PetCare.Models.Entities.Pet", b =>
                 {
                     b.HasOne("PetCare.Models.Entities.PetBreed", "PetBreed")
@@ -402,6 +412,8 @@ namespace PetCare.Migrations
 
             modelBuilder.Entity("PetCare.Models.Entities.Pet", b =>
                 {
+                    b.Navigation("Images");
+
                     b.Navigation("Schedules");
                 });
 

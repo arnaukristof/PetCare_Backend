@@ -10,7 +10,6 @@
         public bool? Medication { get; set; }
         public bool? Indoor { get; set; }
         public string? Description { get; set; }
-        public int? WorkerId { get; set; }
         public required bool Verified { get; set; }
     }
 }

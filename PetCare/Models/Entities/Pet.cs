@@ -19,10 +19,10 @@ namespace PetCare.Models.Entities
         public bool? Medication { get; set; }
         public bool? Indoor { get; set; }
         public string? Description { get; set; }
-        public int? WorkerId { get; set; } //not used
         public required bool Verified { get; set; }
 
         //Navigation Properties
         public List<Schedule> Schedules { get; set; }
+        public List<Image> Images { get; set; }
     }
 }

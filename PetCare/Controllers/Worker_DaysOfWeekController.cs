@@ -17,14 +17,14 @@ namespace PetCare.Controllers
             this.dbContext = dbContext;
         }
 
-        [HttpGet]
+        [HttpGet("GetAllWorker_DaysOffWeek")]
         public IActionResult GetAllWorker_DaysOffWeek()
         {
             return Ok(dbContext.Worker_DaysOfWeeks.ToList());
         }
 
         [HttpGet]
-        [Route("{id:int}")]
+        [Route("GetWorker_DaysOffWeekById{id:int}")]
         public IActionResult GetWorker_DaysOffWeekById(int id)
         {
             var worker_DaysOfWeek = dbContext.Worker_DaysOfWeeks.Find(id);
@@ -37,7 +37,7 @@ namespace PetCare.Controllers
             return Ok(worker_DaysOfWeek);
         }
 
-        [HttpPost]
+        [HttpPost("AddWorker_DaysOffWeek")]
         public IActionResult AddWorker_DaysOffWeek(AddWorker_DaysOfWeekDto addWorker_DaysOfWeekDto)
         {
             var worker_DaysOfWeekEntity = new Worker_DaysOfWeek()
@@ -53,7 +53,7 @@ namespace PetCare.Controllers
         }
 
         [HttpPut]
-        [Route("{id:int}")]
+        [Route("UpdateWorker_DaysOffWeek{id:int}")]
         public IActionResult UpdateWorker_DaysOffWeek(UpdateWorker_DaysOfWeekDto updateWorker_DaysOfWeekDto, int id)
         {
             var worker_DaysOfWeek = dbContext.Worker_DaysOfWeeks.Find(id);
@@ -71,7 +71,7 @@ namespace PetCare.Controllers
         }
 
         [HttpDelete]
-        [Route("{id:int}")]
+        [Route("DeleteWorker_DaysOffWeek{id:int}")]
         public IActionResult DeleteWorker_DaysOffWeek(int id)
         {
             var worker_DaysOfWeek = dbContext.Worker_DaysOfWeeks.Find(id);

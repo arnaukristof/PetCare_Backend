@@ -60,8 +60,6 @@ namespace PetCare.Controllers
                     Indoor = p.Indoor,
                     Description = p.Description,
                     Verified = p.Verified
-
-
                 })
                 .ToList();
             return Ok(pets);
@@ -80,7 +78,6 @@ namespace PetCare.Controllers
                 Medication = addPetDto.Medication,
                 Indoor = addPetDto.Indoor,
                 Description = addPetDto.Description,
-                WorkerId = addPetDto.PetSizeId,
                 Verified = addPetDto.Verified
             };
 
@@ -109,7 +106,6 @@ namespace PetCare.Controllers
             pet.Medication = updatePetDto.Medication;
             pet.Indoor = updatePetDto.Indoor;
             pet.Description = updatePetDto.Description;
-            pet.WorkerId = updatePetDto.WorkerId;
             pet.Verified = updatePetDto.Verified;
 
             dbContext.SaveChanges();

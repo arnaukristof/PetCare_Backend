@@ -12,8 +12,8 @@ using PetCare.Data;
 namespace PetCare.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241106192255_schedules and scheduletype tables added")]
-    partial class schedulesandscheduletypetablesadded
+    [Migration("20241116114004_nullable image petid")]
+    partial class nullableimagepetid
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -40,6 +40,31 @@ namespace PetCare.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("DaysOfWeeks");
+                });
+
+            modelBuilder.Entity("PetCare.Models.Entities.Image", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<byte[]>("Data")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("PetId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PetId");
+
+                    b.ToTable("Images");
                 });
 
             modelBuilder.Entity("PetCare.Models.Entities.Pet", b =>
@@ -77,9 +102,6 @@ namespace PetCare.Migrations
 
                     b.Property<bool>("Verified")
                         .HasColumnType("bit");
-
-                    b.Property<int?>("WorkerId")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -151,44 +173,38 @@ namespace PetCare.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Age")
+                    b.Property<int?>("Age")
                         .HasColumnType("int");
 
                     b.Property<string>("Allergies")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Date")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("LengthOfWalk")
+                    b.Property<int?>("LengthOfWalk")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("NumberOfWalker")
+                    b.Property<int?>("NumberOfWalker")
                         .HasColumnType("int");
 
                     b.Property<string>("ParentInfo")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Past")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("PetId")
                         .HasColumnType("int");
 
                     b.Property<string>("PhoneNumber")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ScheduleTypeId")
@@ -202,7 +218,11 @@ namespace PetCare.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("PetId");
+
                     b.HasIndex("ScheduleTypeId");
+
+                    b.HasIndex("WorkerId");
 
                     b.ToTable("Schedules");
                 });
@@ -264,6 +284,38 @@ namespace PetCare.Migrations
                     b.ToTable("Worker_DaysOfWeeks");
                 });
 
+            modelBuilder.Entity("PetCare.Models.Entities.Worker_PetType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("PetTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WorkerId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PetTypeId");
+
+                    b.HasIndex("WorkerId");
+
+                    b.ToTable("Worker_PetTypes");
+                });
+
+            modelBuilder.Entity("PetCare.Models.Entities.Image", b =>
+                {
+                    b.HasOne("PetCare.Models.Entities.Pet", "Pet")
+                        .WithMany("Images")
+                        .HasForeignKey("PetId");
+
+                    b.Navigation("Pet");
+                });
+
             modelBuilder.Entity("PetCare.Models.Entities.Pet", b =>
                 {
                     b.HasOne("PetCare.Models.Entities.PetBreed", "PetBreed")
@@ -293,13 +345,29 @@ namespace PetCare.Migrations
 
             modelBuilder.Entity("PetCare.Models.Entities.Schedule", b =>
                 {
+                    b.HasOne("PetCare.Models.Entities.Pet", "Pet")
+                        .WithMany("Schedules")
+                        .HasForeignKey("PetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("PetCare.Models.Entities.ScheduleType", "ScheduleType")
                         .WithMany("Schedules")
                         .HasForeignKey("ScheduleTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("PetCare.Models.Entities.Worker", "Worker")
+                        .WithMany("Schedules")
+                        .HasForeignKey("WorkerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Pet");
+
                     b.Navigation("ScheduleType");
+
+                    b.Navigation("Worker");
                 });
 
             modelBuilder.Entity("PetCare.Models.Entities.Worker_DaysOfWeek", b =>
@@ -321,9 +389,35 @@ namespace PetCare.Migrations
                     b.Navigation("Worker");
                 });
 
+            modelBuilder.Entity("PetCare.Models.Entities.Worker_PetType", b =>
+                {
+                    b.HasOne("PetCare.Models.Entities.PetType", "PetType")
+                        .WithMany("Worker_PetTypes")
+                        .HasForeignKey("PetTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PetCare.Models.Entities.Worker", "Worker")
+                        .WithMany("Worker_PetTypes")
+                        .HasForeignKey("WorkerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PetType");
+
+                    b.Navigation("Worker");
+                });
+
             modelBuilder.Entity("PetCare.Models.Entities.DaysOfWeek", b =>
                 {
                     b.Navigation("Worker_DaysOfWeeks");
+                });
+
+            modelBuilder.Entity("PetCare.Models.Entities.Pet", b =>
+                {
+                    b.Navigation("Images");
+
+                    b.Navigation("Schedules");
                 });
 
             modelBuilder.Entity("PetCare.Models.Entities.PetBreed", b =>
@@ -339,6 +433,8 @@ namespace PetCare.Migrations
             modelBuilder.Entity("PetCare.Models.Entities.PetType", b =>
                 {
                     b.Navigation("Pets");
+
+                    b.Navigation("Worker_PetTypes");
                 });
 
             modelBuilder.Entity("PetCare.Models.Entities.ScheduleType", b =>
@@ -348,7 +444,11 @@ namespace PetCare.Migrations
 
             modelBuilder.Entity("PetCare.Models.Entities.Worker", b =>
                 {
+                    b.Navigation("Schedules");
+
                     b.Navigation("Worker_DaysOfWeeks");
+
+                    b.Navigation("Worker_PetTypes");
                 });
 #pragma warning restore 612, 618
         }
