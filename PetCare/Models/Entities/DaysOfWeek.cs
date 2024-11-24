@@ -5,7 +5,7 @@
         public required int Id { get; set; }
         public required string NameOfDay { get; set; }
 
-        //Navigation
+        //Navigation properties
         public List<Worker_DaysOfWeek> Worker_DaysOfWeeks { get; set; }
 
     }

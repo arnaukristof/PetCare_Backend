@@ -4,6 +4,7 @@
     {
         public int Id { get; set; }
 
+        //Navigation properties
         public int WorkerId { get; set; }
         public Worker Worker { get; set; }
 

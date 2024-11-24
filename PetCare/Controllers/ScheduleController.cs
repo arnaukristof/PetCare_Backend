@@ -122,6 +122,23 @@ namespace PetCare.Controllers
             dbContext.SaveChanges();
             return Ok(schedule);
         }
+
+        [HttpDelete]
+        [Route("DeleteSchedule{id:int}")]
+        public IActionResult DeleteSchedule(int id)
+        {
+            var schedule = dbContext.Schedules.Find(id);
+
+            if (schedule == null)
+            {
+                return NotFound();
+            }
+
+            dbContext.Schedules.Remove(schedule);
+            dbContext.SaveChanges();
+
+            return Ok(schedule);
+        }
     }
 
 }

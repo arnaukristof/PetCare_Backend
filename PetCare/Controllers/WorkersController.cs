@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PetCare.Data;
 using PetCare.Models.Dtos;
 using PetCare.Models.Entities;
@@ -81,6 +82,22 @@ namespace PetCare.Controllers
             dbContext.SaveChanges();
 
             return Ok(worker);
+        }
+
+        [HttpGet("GetWorkersWithAdditionalData")]
+        public async Task<IActionResult> GetWorkersWithAdditionalData()
+        {
+            var workers = await dbContext.Workers
+                .Select(w => new
+                {
+                    w.Id,
+                    w.Name,
+                    PetTypes = w.Worker_PetTypes.Select(wp => wp.PetType.TypeName).ToList(),
+                    DaysOfWeek = w.Worker_DaysOfWeeks.Select(wd => wd.DaysOfWeek.NameOfDay).ToList()
+                })
+                .ToListAsync();
+
+            return Ok(workers);
         }
     }
 }

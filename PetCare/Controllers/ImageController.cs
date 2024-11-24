@@ -18,7 +18,7 @@ namespace PetCare.Controllers
         }
 
         [HttpPost("upload")]
-        public async Task<IActionResult> UploadImage(/*[FromForm]*/ IFormFile file)
+        public async Task<IActionResult> UploadImage(IFormFile file)
         {
             if (file == null || file.Length == 0)
                 return BadRequest("No file uploaded.");
@@ -42,7 +42,7 @@ namespace PetCare.Controllers
         }
 
         [HttpPost("UploadImageWithPetId")]
-        public async Task<IActionResult> UploadImageWithPetId(/*[FromForm]*/ IFormFile file, int petId)
+        public async Task<IActionResult> UploadImageWithPetId(IFormFile file, int petId)
         {
             if (file == null || file.Length == 0)
                 return BadRequest("No file uploaded.");
@@ -64,9 +64,6 @@ namespace PetCare.Controllers
 
                 var imageUrl = Url.Action("GetImage", "Images", new { id = image.Id }, Request.Scheme);
                 return Ok(new { ImageId = image.Id, ImageName = image.Name, ImagePetId = image.PetId, ImageUrl = imageUrl });
-
-
-                //return Ok(new { ImageId = image.Id, ImageName = image.Name, ImagePetId = image.PetId });
             }
         }
 
@@ -91,7 +88,7 @@ namespace PetCare.Controllers
                 {
                     img.Id,
                     img.Name,
-                    ImageUrl = $"{baseUrl}/api/Image/images/{img.Id}" // Manuális URL építés
+                    ImageUrl = $"{baseUrl}/api/Image/images/{img.Id}" // building manual pdf
                 })
                 .ToListAsync();
 
@@ -99,6 +96,21 @@ namespace PetCare.Controllers
                 return NotFound("No images found for the specified PetId.");
 
             return Ok(images);
+        }
+
+        [HttpGet("GetPdf/{id}")]
+        public async Task<IActionResult> GetPdf(int id)
+        {
+            var file = await dbContext.Images.FindAsync(id);
+
+            if (file == null)
+                return NotFound("File not found.");
+
+            var fileExtension = Path.GetExtension(file.Name).ToLower();
+            if (fileExtension != ".pdf")
+                return BadRequest("The requested file is not a PDF.");
+
+            return File(file.Data, "application/pdf", file.Name);
         }
     }
 }
