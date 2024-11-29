@@ -32,6 +32,7 @@ namespace PetCare.Data
                 .WithMany(wp => wp.Worker_PetTypes)
                 .HasForeignKey(wi => wi.PetTypeId);
         }
+        public DbSet<Admin> Admins { get; set; }
         public DbSet<Pet> Pets { get; set; }
         public DbSet<PetSize> PetSizes { get; set; }
         public DbSet<PetType> PetTypes { get; set; }

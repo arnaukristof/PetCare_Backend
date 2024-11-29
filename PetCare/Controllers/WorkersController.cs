@@ -99,5 +99,49 @@ namespace PetCare.Controllers
 
             return Ok(workers);
         }
+
+        [HttpPost("CreateWorker")]
+        public async Task<IActionResult> CreateWorker([FromBody] CreateWorkerDto createWorkerDto)
+        {
+            if(!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var worker = new Worker
+            {
+                Name = createWorkerDto.Name
+            };
+
+            dbContext.Workers.Add(worker);
+            await dbContext.SaveChangesAsync();
+
+            if (createWorkerDto.PetTypeIds != null)
+            {
+                foreach (var petTypeId in createWorkerDto.PetTypeIds)
+                {
+                    var workerPetType = new Worker_PetType
+                    {
+                        WorkerId = worker.Id,
+                        PetTypeId = petTypeId
+                    };
+                    createWorkerDto.Worker_PetTypes.Add(workerPetType);
+                }
+            }
+
+            if (createWorkerDto.DaysOfWeekIds != null)
+            {
+                foreach (var daysOfWeekId in createWorkerDto.DaysOfWeekIds)
+                {
+                    var workerDay = new Worker_DaysOfWeek
+                    {
+                        WorkerId = worker.Id,
+                        DaysOfWeekId = daysOfWeekId
+                    };
+                    createWorkerDto.Worker_DaysOfWeeks.Add(workerDay);
+                }
+            }
+
+            await dbContext.SaveChangesAsync();
+            return Ok(worker);
+        }
     }
 }

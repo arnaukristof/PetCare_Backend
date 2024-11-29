@@ -12,8 +12,8 @@ using PetCare.Data;
 namespace PetCare.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241116113211_new migration")]
-    partial class newmigration
+    [Migration("20241126205916_test3")]
+    partial class test3
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -57,7 +57,7 @@ namespace PetCare.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("PetId")
+                    b.Property<int?>("PetId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -311,9 +311,7 @@ namespace PetCare.Migrations
                 {
                     b.HasOne("PetCare.Models.Entities.Pet", "Pet")
                         .WithMany("Images")
-                        .HasForeignKey("PetId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PetId");
 
                     b.Navigation("Pet");
                 });

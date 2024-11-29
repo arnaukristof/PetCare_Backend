@@ -139,6 +139,12 @@ namespace PetCare.Controllers
 
             return Ok(schedule);
         }
+
+        [HttpGet("GetScheduleTypes")]
+        public IActionResult GetScheduleTypes()
+        {
+            return Ok(dbContext.ScheduleTypes.ToList());
+        }
     }
 
 }
