@@ -103,18 +103,17 @@ namespace PetCare.Controllers
         [HttpPost("CreateWorker")]
         public async Task<IActionResult> CreateWorker([FromBody] CreateWorkerDto createWorkerDto)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             var worker = new Worker
             {
                 Name = createWorkerDto.Name
             };
-
             dbContext.Workers.Add(worker);
             await dbContext.SaveChangesAsync();
 
-            if (createWorkerDto.PetTypeIds != null)
+            if (createWorkerDto.PetTypeIds != null && createWorkerDto.PetTypeIds.Any())
             {
                 foreach (var petTypeId in createWorkerDto.PetTypeIds)
                 {
@@ -123,25 +122,95 @@ namespace PetCare.Controllers
                         WorkerId = worker.Id,
                         PetTypeId = petTypeId
                     };
-                    createWorkerDto.Worker_PetTypes.Add(workerPetType);
+                    dbContext.Set<Worker_PetType>().Add(workerPetType);
                 }
             }
 
-            if (createWorkerDto.DaysOfWeekIds != null)
+            if (createWorkerDto.DaysOfWeekIds != null && createWorkerDto.DaysOfWeekIds.Any())
             {
-                foreach (var daysOfWeekId in createWorkerDto.DaysOfWeekIds)
+                foreach (var dayId in createWorkerDto.DaysOfWeekIds)
                 {
                     var workerDay = new Worker_DaysOfWeek
                     {
                         WorkerId = worker.Id,
-                        DaysOfWeekId = daysOfWeekId
+                        DaysOfWeekId = dayId
                     };
-                    createWorkerDto.Worker_DaysOfWeeks.Add(workerDay);
+                    dbContext.Set<Worker_DaysOfWeek>().Add(workerDay);
                 }
             }
 
             await dbContext.SaveChangesAsync();
-            return Ok(worker);
+
+            return Ok(new
+            {
+                Message = "Worker created successfully",
+                Worker = worker
+            });
+        }
+
+        [HttpPut("EditWorker{id}")]
+        public async Task<IActionResult> EditWorker(int id, [FromBody] CreateWorkerDto createWorkerDto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            // Meglévő dolgozó lekérdezése
+            var worker = await dbContext.Workers
+                .Include(w => w.Worker_PetTypes)
+                .Include(w => w.Worker_DaysOfWeeks)
+                .FirstOrDefaultAsync(w => w.Id == id);
+
+            if (worker == null)
+                return NotFound(new { Message = "Worker not found" });
+
+            // Dolgozó nevének frissítése
+            worker.Name = createWorkerDto.Name;
+
+            // Kapcsolatok törlése és újrakapcsolás (PetTypes)
+            dbContext.Worker_PetTypes.RemoveRange(worker.Worker_PetTypes);
+
+            if (createWorkerDto.PetTypeIds != null && createWorkerDto.PetTypeIds.Any())
+            {
+                foreach (var petTypeId in createWorkerDto.PetTypeIds)
+                {
+                    var workerPetType = new Worker_PetType
+                    {
+                        WorkerId = worker.Id,
+                        PetTypeId = petTypeId
+                    };
+                    dbContext.Worker_PetTypes.Add(workerPetType);
+                }
+            }
+
+            // Kapcsolatok törlése és újrakapcsolás (DaysOfWeek)
+            dbContext.Worker_DaysOfWeeks.RemoveRange(worker.Worker_DaysOfWeeks);
+
+            if (createWorkerDto.DaysOfWeekIds != null && createWorkerDto.DaysOfWeekIds.Any())
+            {
+                foreach (var dayId in createWorkerDto.DaysOfWeekIds)
+                {
+                    var workerDay = new Worker_DaysOfWeek
+                    {
+                        WorkerId = worker.Id,
+                        DaysOfWeekId = dayId
+                    };
+                    dbContext.Worker_DaysOfWeeks.Add(workerDay);
+                }
+            }
+
+            // Módosítások mentése
+            await dbContext.SaveChangesAsync();
+
+            return Ok(new
+            {
+                Message = "Worker updated successfully",
+                Worker = worker
+            });
+        }
+        [HttpGet("GetDays")]
+        public IActionResult GetDays()
+        {
+            return Ok(dbContext.DaysOfWeeks.ToList());
         }
     }
 }

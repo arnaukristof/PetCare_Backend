@@ -1,9 +1,9 @@
 ﻿namespace PetCare.Models.Dtos
 {
-    public class CreateWorker
+    public class CreateWorkerDto
     {
-        public string Name { get; set; }
-        public List<int> PetTypeIds { get; set; }
-        public List<int> DaysOfWeeksIds { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public List<int> PetTypeIds { get; set; } = new List<int>();
+        public List<int> DaysOfWeekIds { get; set; } = new List<int>();
     }
 }
